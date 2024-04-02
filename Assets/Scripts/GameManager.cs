@@ -39,10 +39,13 @@ public class GameManager : MonoBehaviour
     private int cyclecounter=1;
     public float peasanttowin;
     public float millettowin;
-
+    public AudioSource HarvestAudioSource;
+    public AudioSource EnemyAudioSource;
 
     private void Start()
     {
+
+       
         UpdateText();
         currentTimepeasant = peasantHireTime;
         currentTimewarrior = warriorHireTime;
@@ -91,26 +94,9 @@ public class GameManager : MonoBehaviour
 
         if (harvestTimer.Tick)
         {
+            HarvestAudioSource.Play();
             millet += peasantHarvestPower*peasant;
             UpdateText();
-        }
-
-        if (peasantPrice > millet)
-        {
-            hirePeasantButton.interactable = false;
-        }
-        else if(!isHiring)
-        {
-            hirePeasantButton.interactable = true;
-        }
-
-        if (warriorPrice > millet)
-        {
-            hireWarriorButton.interactable = false;
-        }
-        else if (!isHiringWarrior)
-        {
-            hireWarriorButton.interactable = true;
         }
 
         if (enemyTimer.Tick)
@@ -119,9 +105,11 @@ public class GameManager : MonoBehaviour
 
             if (cyclecounter > enemyinvasioncycles)
             {
-                
+               
                 warrior -= enemy;
                 enemy += 1;
+                if(enemy>1) { EnemyAudioSource.Play(); }
+
                 if (warrior < 0)
                 {
                     
@@ -153,15 +141,23 @@ public class GameManager : MonoBehaviour
         {
             GameWin();
         }
+
+        UpdateButtonStates();
     }
 
-    
+    private void UpdateButtonStates()
+    {
+        // Обновляем состояние кнопок на основе текущих условий
+        hirePeasantButton.interactable = !isHiring && millet >= peasantPrice;
+        hireWarriorButton.interactable = !isHiringWarrior && millet >= warriorPrice;
+    }
     public void HirePeasant()
     {
         hirePeasantButton.interactable = false;
         isHiring = true;
         millet -= peasantPrice;
         UpdateText();
+        UpdateButtonStates();
     }
 
     public void HireWarrior()
@@ -170,6 +166,7 @@ public class GameManager : MonoBehaviour
         isHiringWarrior = true;
         millet -= warriorPrice;
         UpdateText();
+        UpdateButtonStates();
     }
 
     private void UpdateText()
