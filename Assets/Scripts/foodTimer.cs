@@ -6,9 +6,7 @@ using UnityEngine.UI;
 public class foodTimer : MonoBehaviour
 {
     public float MaxTime;
-
     private Image img;
-
     private float currentTime;
     public bool Tick;
     public bool startEat=false;
