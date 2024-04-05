@@ -46,7 +46,6 @@ public class GameManager : MonoBehaviour
     public AudioSource WarriorHireSource;
     private float allmillet;
     private float allenemies;
-
     private void Start()
     {
         Time.timeScale = 1;
@@ -54,27 +53,17 @@ public class GameManager : MonoBehaviour
         currentTimepeasant = peasantHireTime;
         currentTimewarrior = warriorHireTime;
     }
-
     private void Update()
     {
         HandlePeasantHiringTimer();
-
         HandleWarriorHiringTimer();
-
         HandleHarvest();
-
         HandleEnemyAttacks();
-
         FoodTimerCheck();
-        
         HandleFoodTimer();
-
         WinLoseCheck();
-
         UpdateButtonStates();
     }
-
-
     private void HandlePeasantHiringTimer()
     {
         if (!isHiring) return;
@@ -95,7 +84,6 @@ public class GameManager : MonoBehaviour
         peasant++;
         UpdateText();
     }
-
     private void HandleWarriorHiringTimer()
     {
         if (!isHiringWarrior) return;
@@ -116,7 +104,6 @@ public class GameManager : MonoBehaviour
         warrior++;
         UpdateText();
     }
-
     private void HandleHarvest()
     {
         if (!harvestTimer.Tick) return;
@@ -126,7 +113,6 @@ public class GameManager : MonoBehaviour
         millet += peasantHarvestPower * peasant;
         UpdateText();
     }
-
     private void HandleEnemyAttacks()
     {
         if (!enemyTimer.Tick) return;
@@ -137,7 +123,6 @@ public class GameManager : MonoBehaviour
             ProcessEnemyAttack();
         }
     }
-
     private void ProcessEnemyAttack()
     {
         warrior -= enemy;
@@ -152,7 +137,6 @@ public class GameManager : MonoBehaviour
 
         UpdateText();
     }
-
     private void FoodTimerCheck()
     {
         if (warrior > 0)
@@ -164,7 +148,6 @@ public class GameManager : MonoBehaviour
             FoodTimer.StopEating();
         }
     }
-
     private void HandleFoodTimer()
     {
         if (!FoodTimer.Tick) return;
@@ -173,7 +156,6 @@ public class GameManager : MonoBehaviour
         millet -= warriorMilletEat * warrior;
         UpdateText();
     }
-
     private void UpdateButtonStates()
     {
         hirePeasantButton.interactable = !isHiring && millet >= peasantPrice;
@@ -187,7 +169,6 @@ public class GameManager : MonoBehaviour
         UpdateText();
         UpdateButtonStates();
     }
-
     public void HireWarrior()
     {
         hireWarriorButton.interactable = false;
@@ -196,7 +177,6 @@ public class GameManager : MonoBehaviour
         UpdateText();
         UpdateButtonStates();
     }
-
     private void WinLoseCheck()
     {
         if ((millet >= millettowin) && (peasant >= peasanttowin))
@@ -209,7 +189,6 @@ public class GameManager : MonoBehaviour
             GameLoseMillet();
         }
     }
-
     private void UpdateText()
     {
         milletcount.text = millet.ToString();
@@ -217,7 +196,6 @@ public class GameManager : MonoBehaviour
         warriorcount.text = warrior.ToString();
         enemytcount.text = enemy.ToString();
     }
-
     private void GameLose()
     {
         Time.timeScale = 0;
@@ -227,7 +205,6 @@ public class GameManager : MonoBehaviour
                                                              + "\n" + "Всего собрано зерна:"+ allmillet 
                                                              + "\n" + "Всего убито врагов:"+ allenemies;
     }
-
     private void GameWin()
     {
         Time.timeScale = 0;
@@ -238,7 +215,6 @@ public class GameManager : MonoBehaviour
                                                              + "\n" + "Всего убито врагов:" + allenemies;
 
     }
-
     private void GameLoseMillet()
     {
         Time.timeScale = 0;
