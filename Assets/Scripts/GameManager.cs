@@ -57,71 +57,104 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (isHiring)
-        {
-            currentTimepeasant -= Time.deltaTime;
+        HandlePeasantHiringTimer();
 
-            if (currentTimepeasant <= 0)
-            {
-                PeasantHireSource.Play();
-                currentTimepeasant = peasantHireTime;
-                isHiring = false;
-                hirePeasantButton.interactable = true;
-                peasant++;
-                UpdateText();
-            }
-            
-            peasantTimer.fillAmount = Mathf.Clamp(currentTimepeasant / peasantHireTime, 0f, 1f);
-        }
+        HandleWarriorHiringTimer();
 
-        if (isHiringWarrior)
-        {
-            currentTimewarrior -= Time.deltaTime;
+        HandleHarvest();
 
-            if (currentTimewarrior <= 0)
-            {
+        HandleEnemyAttacks();
 
-                WarriorHireSource.Play();
-                currentTimewarrior = warriorHireTime;
-                isHiringWarrior = false;
-                hirePeasantButton.interactable = true;
-                warrior++;
-                UpdateText();
-            }
-            
-            warriorTimer.fillAmount = Mathf.Clamp(currentTimewarrior / warriorHireTime, 0f, 1f);
-        }
+        FoodTimerCheck();
         
-        if (harvestTimer.Tick)
+        HandleFoodTimer();
+
+        WinLoseCheck();
+
+        UpdateButtonStates();
+    }
+
+
+    private void HandlePeasantHiringTimer()
+    {
+        if (!isHiring) return;
+
+        currentTimepeasant -= Time.deltaTime;
+        if (currentTimepeasant <= 0)
         {
-            allmillet += peasantHarvestPower * peasant;
-            HarvestAudioSource.Play();
-            millet += peasantHarvestPower*peasant;
-            UpdateText();
+            CompletePeasantHiring();
+        }
+        peasantTimer.fillAmount = Mathf.Clamp(currentTimepeasant / peasantHireTime, 0f, 1f);
+    }
+    private void CompletePeasantHiring()
+    {
+        PeasantHireSource.Play();
+        currentTimepeasant = peasantHireTime;
+        isHiring = false;
+        hirePeasantButton.interactable = true;
+        peasant++;
+        UpdateText();
+    }
+
+    private void HandleWarriorHiringTimer()
+    {
+        if (!isHiringWarrior) return;
+
+        currentTimewarrior -= Time.deltaTime;
+        if (currentTimewarrior <= 0)
+        {
+            CompleteWarriorHiring();
+        }
+        warriorTimer.fillAmount = Mathf.Clamp(currentTimewarrior / warriorHireTime, 0f, 1f);
+    }
+    private void CompleteWarriorHiring()
+    {
+        WarriorHireSource.Play();
+        currentTimewarrior = warriorHireTime;
+        isHiringWarrior = false;
+        hireWarriorButton.interactable = true;
+        warrior++;
+        UpdateText();
+    }
+
+    private void HandleHarvest()
+    {
+        if (!harvestTimer.Tick) return;
+
+        allmillet += peasantHarvestPower * peasant;
+        HarvestAudioSource.Play();
+        millet += peasantHarvestPower * peasant;
+        UpdateText();
+    }
+
+    private void HandleEnemyAttacks()
+    {
+        if (!enemyTimer.Tick) return;
+
+        cyclecounter++;
+        if (cyclecounter > enemyinvasioncycles)
+        {
+            ProcessEnemyAttack();
+        }
+    }
+
+    private void ProcessEnemyAttack()
+    {
+        warrior -= enemy;
+        enemy += 1;
+        allenemies += enemy;
+        if (enemy > 1) { EnemyAudioSource.Play(); }
+
+        if (warrior < 0)
+        {
+            GameLose();
         }
 
-        if (enemyTimer.Tick)
-        {
-            cyclecounter++;
+        UpdateText();
+    }
 
-            if (cyclecounter > enemyinvasioncycles)
-            {
-               
-                warrior -= enemy;
-                enemy += 1;
-                allenemies += enemy;
-                if (enemy>1) { EnemyAudioSource.Play(); }
-
-                if (warrior < 0)
-                {
-                    
-                    GameLose();
-                }
-
-                UpdateText();
-            }
-        }
-
+    private void FoodTimerCheck()
+    {
         if (warrior > 0)
         {
             FoodTimer.StartEating();
@@ -130,25 +163,15 @@ public class GameManager : MonoBehaviour
         {
             FoodTimer.StopEating();
         }
-        
-        if (FoodTimer.Tick)
-        {
-            EatAudioSource.Play();
-            millet -= warriorMilletEat*warrior;
-            UpdateText();
-        }
+    }
 
-        if ((millet >= millettowin) && (peasant >= peasanttowin))
-        {
-            GameWin();
-        }
+    private void HandleFoodTimer()
+    {
+        if (!FoodTimer.Tick) return;
 
-        if (millet < 0)
-        {
-            GameLoseMillet();
-        }
-
-        UpdateButtonStates();
+        EatAudioSource.Play();
+        millet -= warriorMilletEat * warrior;
+        UpdateText();
     }
 
     private void UpdateButtonStates()
@@ -172,6 +195,19 @@ public class GameManager : MonoBehaviour
         millet -= warriorPrice;
         UpdateText();
         UpdateButtonStates();
+    }
+
+    private void WinLoseCheck()
+    {
+        if ((millet >= millettowin) && (peasant >= peasanttowin))
+        {
+            GameWin();
+        }
+
+        if (millet < 0)
+        {
+            GameLoseMillet();
+        }
     }
 
     private void UpdateText()
